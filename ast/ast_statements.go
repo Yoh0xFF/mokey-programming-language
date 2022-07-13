@@ -6,6 +6,8 @@ import (
 )
 
 // Statements
+
+/* Let statement ast node */
 type LetStatement struct {
 	Token token.Token // the 'let' token
 	Name  Identifier
@@ -30,6 +32,7 @@ func (ls *LetStatement) String() string {
 	return out.String()
 }
 
+/* Return statement ast node */
 type ReturnStatement struct {
 	Token       token.Token // the 'return' token
 	ReturnValue Expression
@@ -51,6 +54,7 @@ func (rs *ReturnStatement) String() string {
 	return out.String()
 }
 
+/* Expession statement ast node */
 type ExpressionStatement struct {
 	Token      token.Token // the first token of the expression
 	Expression Expression

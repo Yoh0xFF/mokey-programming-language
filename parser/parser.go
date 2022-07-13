@@ -51,5 +51,32 @@ func New(l *lexer.Lexer) *Parser {
 		errors: []string{},
 	}
 
+	p.prefixParseFnMap = make(map[token.TokenType]prefixParseFn)
+	p.registerPrefixParserFn(token.IDENT, p.parseIdentifier)
+	p.registerPrefixParserFn(token.INT, p.parseIntegerLiteral)
+	p.registerPrefixParserFn(token.BANG, p.parsePrefixExpression)
+	p.registerPrefixParserFn(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefixParserFn(token.TRUE, p.parseBoolean)
+	p.registerPrefixParserFn(token.FALSE, p.parseBoolean)
+
+	p.infixParseFnMap = make(map[token.TokenType]infixParseFn)
+	p.registerInfixParserFn(token.PLUS, p.parseInfixExpression)
+	p.registerInfixParserFn(token.MINUS, p.parseInfixExpression)
+	p.registerInfixParserFn(token.SLASH, p.parseInfixExpression)
+	p.registerInfixParserFn(token.ASTERISK, p.parseInfixExpression)
+	p.registerInfixParserFn(token.EQ, p.parseInfixExpression)
+	p.registerInfixParserFn(token.NOT_EQ, p.parseInfixExpression)
+	p.registerInfixParserFn(token.LT, p.parseInfixExpression)
+	p.registerInfixParserFn(token.GT, p.parseInfixExpression)
+
+	// Read two tokens, so curToken and peekToken are both set
+	p.nextToken()
+	p.nextToken()
+
 	return p
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	// TODO
+	return nil
 }

@@ -17,7 +17,3 @@ type Expression interface {
 	Node
 	expressionNode()
 }
-
-// Statements
-
-// Expressions
