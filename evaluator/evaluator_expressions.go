@@ -1,6 +1,9 @@
 package evaluator
 
-import "monkey/object"
+import (
+	"monkey/ast"
+	"monkey/object"
+)
 
 func evalPrefixExpression(operator string, right object.Object) object.Object {
 	switch operator {
@@ -47,7 +50,7 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 		return newError("type mismatch: %s %s %s",
 			left.Type(), operator, right.Type())
 	default:
-		return newError("unknown operator: %s %s %s",
+		return newError("Unknown operator: %s %s %s",
 			left.Type(), operator, right.Type())
 	}
 }
@@ -77,4 +80,78 @@ func evalIntegerInfixExpression(operator string, left, right object.Object) obje
 		return newError("Unknown operator: %s %s %s",
 			left.Type(), operator, right.Type())
 	}
+}
+
+func evalIfExpression(
+	ie *ast.IfExpression,
+	env *object.Environment,
+) object.Object {
+	condition := Eval(ie.Condition, env)
+	if isError(condition) {
+		return condition
+	}
+
+	if isTruthy(condition) {
+		return Eval(ie.Consequence, env)
+	} else if ie.Alternative != nil {
+		return Eval(ie.Alternative, env)
+	} else {
+		return NULL
+	}
+}
+
+func evalIdentifier(i *ast.Identifier, env *object.Environment) object.Object {
+	value, ok := env.Get(i.Value)
+
+	if !ok {
+		return newError("Identifier not found: %s", i.Value)
+	}
+
+	return value
+}
+
+func evalExpressions(exprs []ast.Expression, env *object.Environment) []object.Object {
+	var result []object.Object
+
+	for _, expr := range exprs {
+		evaluated := Eval(expr, env)
+
+		if isError(evaluated) {
+			return []object.Object{evaluated}
+		}
+
+		result = append(result, evaluated)
+	}
+
+	return result
+}
+
+func applyFunction(fn object.Object, args []object.Object) object.Object {
+	fnCasted, ok := fn.(*object.Function)
+	if !ok {
+		return newError("Not a function: %s", fn.Type())
+	}
+
+	extendedEnv := extendFnEnv(fnCasted, args)
+	evaluated := Eval(fnCasted.Body, extendedEnv)
+
+	return unwrapReturnValue(evaluated)
+}
+
+func extendFnEnv(fn *object.Function, args []object.Object) *object.Environment {
+	env := object.NewEnclosedEnvironment(fn.Env)
+
+	for id, param := range fn.Parameters {
+		env.Set(param.Value, args[id])
+	}
+
+	return env
+}
+
+func unwrapReturnValue(obj object.Object) object.Object {
+	if returnValue, ok := obj.(*object.ReturnValue); ok {
+		return returnValue.Value
+	}
+
+	return obj
 }
