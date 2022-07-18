@@ -23,7 +23,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatementNode {
 		return nil
 	}
 
-	stmt.Name = ast.IdentifierNode{Token: p.curToken, Value: p.curToken.Literal}
+	stmt.NameNode = ast.IdentifierNode{Token: p.curToken, Value: p.curToken.Literal}
 
 	if !p.expectPeek(token.ASSIGN) {
 		return nil
@@ -31,7 +31,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatementNode {
 
 	p.nextToken()
 
-	stmt.Value = p.parseExpression(LOWEST)
+	stmt.ValueNode = p.parseExpression(LOWEST)
 
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
@@ -45,7 +45,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatementNode {
 
 	p.nextToken()
 
-	stmt.ReturnValue = p.parseExpression(LOWEST)
+	stmt.ReturnValueNode = p.parseExpression(LOWEST)
 
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
@@ -57,7 +57,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatementNode {
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatementNode {
 	stmt := &ast.ExpressionStatementNode{Token: p.curToken}
 
-	stmt.Expression = p.parseExpression(LOWEST)
+	stmt.ExpressionNode = p.parseExpression(LOWEST)
 
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
@@ -68,13 +68,13 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatementNode {
 
 func (p *Parser) parseBlockStatement() *ast.BlockStatementNode {
 	block := &ast.BlockStatementNode{Token: p.curToken}
-	block.Statements = []ast.StatementNode{}
+	block.StatementNodes = []ast.StatementNode{}
 
 	p.nextToken()
 
 	for !p.curTokenIs(token.RBRACE) && !p.curTokenIs(token.EOF) {
 		statement := p.parseStatement()
-		block.Statements = append(block.Statements, statement)
+		block.StatementNodes = append(block.StatementNodes, statement)
 		p.nextToken()
 	}
 

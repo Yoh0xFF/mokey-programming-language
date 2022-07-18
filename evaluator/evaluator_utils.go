@@ -26,7 +26,7 @@ func isTruthy(obj object.Object) bool {
 	}
 }
 
-func newError(format string, a ...interface{}) *object.ErrorObject {
+func newErrorObject(format string, a ...interface{}) *object.ErrorObject {
 	return &object.ErrorObject{Message: fmt.Sprintf(format, a...)}
 }
 

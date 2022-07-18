@@ -50,11 +50,11 @@ func (n *NullObject) Inspect() string  { return "null" }
 
 /* Return value object */
 type ReturnValueObject struct {
-	Value Object
+	ValueObject Object
 }
 
 func (rv *ReturnValueObject) Type() ObjectType { return RETURN_VALUE_OBJ }
-func (rv *ReturnValueObject) Inspect() string  { return rv.Value.Inspect() }
+func (rv *ReturnValueObject) Inspect() string  { return rv.ValueObject.Inspect() }
 
 /* ErrorObject object */
 type ErrorObject struct {
@@ -66,8 +66,8 @@ func (e *ErrorObject) Inspect() string  { return fmt.Sprintf("Error: %s", e.Mess
 
 /* FunctionObject object */
 type FunctionObject struct {
-	Parameters []*ast.IdentifierNode
-	Body       *ast.BlockStatementNode
+	ParamNodes []*ast.IdentifierNode
+	BodyNode   *ast.BlockStatementNode
 	Env        *Environment
 }
 
@@ -76,7 +76,7 @@ func (f *FunctionObject) Inspect() string {
 	var out bytes.Buffer
 
 	params := []string{}
-	for _, p := range f.Parameters {
+	for _, p := range f.ParamNodes {
 		params = append(params, p.String())
 	}
 
@@ -84,7 +84,7 @@ func (f *FunctionObject) Inspect() string {
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") {\n")
-	out.WriteString(f.Body.String())
+	out.WriteString(f.BodyNode.String())
 	out.WriteString("\n}")
 
 	return out.String()

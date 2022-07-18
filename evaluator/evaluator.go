@@ -21,21 +21,21 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalBlockStatement(node, env)
 
 	case *ast.ExpressionStatementNode:
-		return Eval(node.Expression, env)
+		return Eval(node.ExpressionNode, env)
 
 	case *ast.ReturnStatementNode:
-		value := Eval(node.ReturnValue, env)
-		if isError(value) {
-			return value
+		resultObject := Eval(node.ReturnValueNode, env)
+		if isError(resultObject) {
+			return resultObject
 		}
-		return &object.ReturnValueObject{Value: value}
+		return &object.ReturnValueObject{ValueObject: resultObject}
 
 	case *ast.LetStatementNode:
-		value := Eval(node.Value, env)
-		if isError(value) {
-			return value
+		resultObject := Eval(node.ValueNode, env)
+		if isError(resultObject) {
+			return resultObject
 		}
-		env.Set(node.Name.Value, value)
+		env.Set(node.NameNode.Value, resultObject)
 
 	// Expressions
 	case *ast.IntegerLiteralNode:
@@ -45,24 +45,24 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return nativeBoolToObject(node.Value)
 
 	case *ast.PrefixExpressionNode:
-		right := Eval(node.Right, env)
-		if isError(right) {
-			return right
+		rightObject := Eval(node.RightNode, env)
+		if isError(rightObject) {
+			return rightObject
 		}
-		return evalPrefixExpression(node.Operator, right)
+		return evalPrefixExpression(node.Operator, rightObject)
 
 	case *ast.InfixExpressionNode:
-		left := Eval(node.Left, env)
-		if isError(left) {
-			return left
+		leftObject := Eval(node.LeftNode, env)
+		if isError(leftObject) {
+			return leftObject
 		}
 
-		right := Eval(node.Right, env)
-		if isError(right) {
-			return right
+		rightObject := Eval(node.RightNode, env)
+		if isError(rightObject) {
+			return rightObject
 		}
 
-		return evalInfixExpression(node.Operator, left, right)
+		return evalInfixExpression(node.Operator, leftObject, rightObject)
 
 	case *ast.IfExpressionNode:
 		return evalIfExpression(node, env)
@@ -72,23 +72,23 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	case *ast.FunctionLiteralNode:
 		return &object.FunctionObject{
-			Parameters: node.Parameters,
+			ParamNodes: node.ParamNodes,
 			Env:        env,
-			Body:       node.Body,
+			BodyNode:   node.BodyNode,
 		}
 
 	case *ast.CallExpressionNode:
-		fn := Eval(node.Function, env)
-		if isError(fn) {
-			return fn
+		fnObject := Eval(node.FnNode, env)
+		if isError(fnObject) {
+			return fnObject
 		}
 
-		args := evalExpressions(node.Arguments, env)
-		if len(args) == 1 && isError(args[0]) {
-			return args[0]
+		argObjects := evalExpressions(node.ArgNodes, env)
+		if len(argObjects) == 1 && isError(argObjects[0]) {
+			return argObjects[0]
 		}
 
-		return applyFunction(fn, args)
+		return applyFunction(fnObject, argObjects)
 	}
 
 	return nil

@@ -12,7 +12,7 @@ func evalPrefixExpression(operator string, rightObject object.Object) object.Obj
 	case "-":
 		return evalMinusPrefixOperatorExpression(rightObject)
 	default:
-		return newError("Unknown operator: %s%s", operator, rightObject.Type())
+		return newErrorObject("Unknown operator: %s%s", operator, rightObject.Type())
 	}
 }
 
@@ -31,7 +31,7 @@ func evalBangOperatorExpression(rightObject object.Object) object.Object {
 
 func evalMinusPrefixOperatorExpression(rightObject object.Object) object.Object {
 	if rightObject.Type() != object.INT_OBJ {
-		return newError("Unknown operator: -%s", rightObject.Type())
+		return newErrorObject("Unknown operator: -%s", rightObject.Type())
 	}
 
 	value := rightObject.(*object.IntObject).Value
@@ -47,10 +47,10 @@ func evalInfixExpression(operator string, leftObject, rightObject object.Object)
 	case operator == "!=":
 		return nativeBoolToObject(leftObject != rightObject)
 	case leftObject.Type() != rightObject.Type():
-		return newError("type mismatch: %s %s %s",
+		return newErrorObject("type mismatch: %s %s %s",
 			leftObject.Type(), operator, rightObject.Type())
 	default:
-		return newError("Unknown operator: %s %s %s",
+		return newErrorObject("Unknown operator: %s %s %s",
 			leftObject.Type(), operator, rightObject.Type())
 	}
 }
@@ -77,7 +77,7 @@ func evalIntegerInfixExpression(operator string, leftObject, rightObject object.
 	case "!=":
 		return nativeBoolToObject(leftValue != rightValue)
 	default:
-		return newError("Unknown operator: %s %s %s",
+		return newErrorObject("Unknown operator: %s %s %s",
 			leftObject.Type(), operator, rightObject.Type())
 	}
 }
@@ -86,15 +86,15 @@ func evalIfExpression(
 	node *ast.IfExpressionNode,
 	env *object.Environment,
 ) object.Object {
-	condition := Eval(node.Condition, env)
-	if isError(condition) {
-		return condition
+	conditionObject := Eval(node.ConditionNode, env)
+	if isError(conditionObject) {
+		return conditionObject
 	}
 
-	if isTruthy(condition) {
-		return Eval(node.Consequence, env)
-	} else if node.Alternative != nil {
-		return Eval(node.Alternative, env)
+	if isTruthy(conditionObject) {
+		return Eval(node.ConsequenceNode, env)
+	} else if node.AlternativeNode != nil {
+		return Eval(node.AlternativeNode, env)
 	} else {
 		return NULL
 	}
@@ -104,53 +104,53 @@ func evalIdentifier(node *ast.IdentifierNode, env *object.Environment) object.Ob
 	value, ok := env.Get(node.Value)
 
 	if !ok {
-		return newError("Identifier not found: %s", node.Value)
+		return newErrorObject("Identifier not found: %s", node.Value)
 	}
 
 	return value
 }
 
 func evalExpressions(exprNodes []ast.ExpressionNode, env *object.Environment) []object.Object {
-	var result []object.Object
+	var resultObjects []object.Object
 
-	for _, expr := range exprNodes {
-		evaluated := Eval(expr, env)
+	for _, exprNode := range exprNodes {
+		resultObject := Eval(exprNode, env)
 
-		if isError(evaluated) {
-			return []object.Object{evaluated}
+		if isError(resultObject) {
+			return []object.Object{resultObject}
 		}
 
-		result = append(result, evaluated)
+		resultObjects = append(resultObjects, resultObject)
 	}
 
-	return result
+	return resultObjects
 }
 
-func applyFunction(fnObject object.Object, args []object.Object) object.Object {
-	fnCasted, ok := fnObject.(*object.FunctionObject)
+func applyFunction(fnObject object.Object, argObjects []object.Object) object.Object {
+	fnObjectCasted, ok := fnObject.(*object.FunctionObject)
 	if !ok {
-		return newError("Not a function: %s", fnObject.Type())
+		return newErrorObject("Not a function: %s", fnObject.Type())
 	}
 
-	extendedEnv := extendFnEnv(fnCasted, args)
-	evaluated := Eval(fnCasted.Body, extendedEnv)
+	extendedEnv := extendFnEnv(fnObjectCasted, argObjects)
+	resultObject := Eval(fnObjectCasted.BodyNode, extendedEnv)
 
-	return unwrapReturnValue(evaluated)
+	return unwrapReturnValue(resultObject)
 }
 
-func extendFnEnv(fnObject *object.FunctionObject, args []object.Object) *object.Environment {
+func extendFnEnv(fnObject *object.FunctionObject, argObjects []object.Object) *object.Environment {
 	env := object.NewEnclosedEnvironment(fnObject.Env)
 
-	for id, param := range fnObject.Parameters {
-		env.Set(param.Value, args[id])
+	for id, paramNode := range fnObject.ParamNodes {
+		env.Set(paramNode.Value, argObjects[id])
 	}
 
 	return env
 }
 
 func unwrapReturnValue(obj object.Object) object.Object {
-	if returnValue, ok := obj.(*object.ReturnValueObject); ok {
-		return returnValue.Value
+	if returnValueObject, ok := obj.(*object.ReturnValueObject); ok {
+		return returnValueObject.ValueObject
 	}
 
 	return obj

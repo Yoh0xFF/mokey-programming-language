@@ -82,12 +82,12 @@ func New(l *lexer.Lexer) *Parser {
 
 func (p *Parser) ParseProgram() *ast.ProgramNode {
 	program := &ast.ProgramNode{}
-	program.Statements = []ast.StatementNode{}
+	program.StatementNodes = []ast.StatementNode{}
 
 	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 		if stmt != nil {
-			program.Statements = append(program.Statements, stmt)
+			program.StatementNodes = append(program.StatementNodes, stmt)
 		}
 		p.nextToken()
 	}

@@ -7,16 +7,16 @@ import (
 
 func TestString(t *testing.T) {
 	program := ProgramNode{
-		Statements: []StatementNode{
+		StatementNodes: []StatementNode{
 			&LetStatementNode{
 				Token: token.Token{Type: token.LET, Literal: "let"},
 
-				Name: IdentifierNode{
+				NameNode: IdentifierNode{
 					Token: token.Token{Type: token.IDENT, Literal: "myVar"},
 					Value: "myVar",
 				},
 
-				Value: &IdentifierNode{
+				ValueNode: &IdentifierNode{
 					Token: token.Token{Type: token.IDENT, Literal: "anotherVar"},
 					Value: "anotherVar",
 				},

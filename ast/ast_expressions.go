@@ -40,9 +40,9 @@ func (il *IntegerLiteralNode) String() string       { return il.Token.Literal }
 
 /* Predix expression ast node */
 type PrefixExpressionNode struct {
-	Token    token.Token // The prefix token, e.g. !
-	Operator string
-	Right    ExpressionNode
+	Token     token.Token // The prefix token, e.g. !
+	Operator  string
+	RightNode ExpressionNode
 }
 
 func (pe *PrefixExpressionNode) expressionNode()      {}
@@ -52,7 +52,7 @@ func (pe *PrefixExpressionNode) String() string {
 
 	out.WriteString("(")
 	out.WriteString(pe.Operator)
-	out.WriteString(pe.Right.String())
+	out.WriteString(pe.RightNode.String())
 	out.WriteString(")")
 
 	return out.String()
@@ -60,10 +60,10 @@ func (pe *PrefixExpressionNode) String() string {
 
 /* Infix expression ast node */
 type InfixExpressionNode struct {
-	Token    token.Token // The operator token, e.g. +
-	Left     ExpressionNode
-	Operator string
-	Right    ExpressionNode
+	Token     token.Token // The operator token, e.g. +
+	LeftNode  ExpressionNode
+	Operator  string
+	RightNode ExpressionNode
 }
 
 func (ie *InfixExpressionNode) expressionNode()      {}
@@ -72,9 +72,9 @@ func (ie *InfixExpressionNode) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("(")
-	out.WriteString(ie.Left.String())
+	out.WriteString(ie.LeftNode.String())
 	out.WriteString(" " + ie.Operator + " ")
-	out.WriteString(ie.Right.String())
+	out.WriteString(ie.RightNode.String())
 	out.WriteString(")")
 
 	return out.String()
@@ -82,10 +82,10 @@ func (ie *InfixExpressionNode) String() string {
 
 /* If expression ast node */
 type IfExpressionNode struct {
-	Token       token.Token // The 'if' token
-	Condition   ExpressionNode
-	Consequence *BlockStatementNode
-	Alternative *BlockStatementNode
+	Token           token.Token // The 'if' token
+	ConditionNode   ExpressionNode
+	ConsequenceNode *BlockStatementNode
+	AlternativeNode *BlockStatementNode
 }
 
 func (ie *IfExpressionNode) expressionNode()      {}
@@ -94,13 +94,13 @@ func (ie *IfExpressionNode) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("if ")
-	out.WriteString(ie.Condition.String())
+	out.WriteString(ie.ConditionNode.String())
 	out.WriteString(" ")
-	out.WriteString(ie.Consequence.String())
+	out.WriteString(ie.ConsequenceNode.String())
 
-	if ie.Alternative != nil {
+	if ie.AlternativeNode != nil {
 		out.WriteString(" else ")
-		out.WriteString(ie.Alternative.String())
+		out.WriteString(ie.AlternativeNode.String())
 	}
 
 	return out.String()
@@ -109,8 +109,8 @@ func (ie *IfExpressionNode) String() string {
 /* Function literal ast node */
 type FunctionLiteralNode struct {
 	Token      token.Token // The 'fn' token
-	Parameters []*IdentifierNode
-	Body       *BlockStatementNode
+	ParamNodes []*IdentifierNode
+	BodyNode   *BlockStatementNode
 }
 
 func (fl *FunctionLiteralNode) expressionNode()      {}
@@ -119,7 +119,7 @@ func (fl *FunctionLiteralNode) String() string {
 	var out bytes.Buffer
 
 	params := []string{}
-	for _, p := range fl.Parameters {
+	for _, p := range fl.ParamNodes {
 		params = append(params, p.String())
 	}
 
@@ -127,16 +127,16 @@ func (fl *FunctionLiteralNode) String() string {
 	out.WriteString("(")
 	out.WriteString(strings.Join(params, ", "))
 	out.WriteString(") ")
-	out.WriteString(fl.Body.String())
+	out.WriteString(fl.BodyNode.String())
 
 	return out.String()
 }
 
 /* function call expression ast node */
 type CallExpressionNode struct {
-	Token     token.Token    // The '(' token
-	Function  ExpressionNode // Identifier or FunctionLiteral
-	Arguments []ExpressionNode
+	Token    token.Token    // The '(' token
+	FnNode   ExpressionNode // Identifier or FunctionLiteral
+	ArgNodes []ExpressionNode
 }
 
 func (ce *CallExpressionNode) expressionNode()      {}
@@ -145,11 +145,11 @@ func (ce *CallExpressionNode) String() string {
 	var out bytes.Buffer
 
 	args := []string{}
-	for _, a := range ce.Arguments {
+	for _, a := range ce.ArgNodes {
 		args = append(args, a.String())
 	}
 
-	out.WriteString(ce.Function.String())
+	out.WriteString(ce.FnNode.String())
 	out.WriteString("(")
 	out.WriteString(strings.Join(args, ", "))
 	out.WriteString(")")

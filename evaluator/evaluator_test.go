@@ -253,19 +253,19 @@ func TestFunctionObject(t *testing.T) {
 		t.Fatalf("object is not Function. got=%T (%+v)", evaluated, evaluated)
 	}
 
-	if len(fn.Parameters) != 1 {
+	if len(fn.ParamNodes) != 1 {
 		t.Fatalf("function has wrong parameters. Parameters=%+v",
-			fn.Parameters)
+			fn.ParamNodes)
 	}
 
-	if fn.Parameters[0].String() != "x" {
-		t.Fatalf("parameter is not 'x'. got=%q", fn.Parameters[0])
+	if fn.ParamNodes[0].String() != "x" {
+		t.Fatalf("parameter is not 'x'. got=%q", fn.ParamNodes[0])
 	}
 
 	expectedBody := "(x + 2)"
 
-	if fn.Body.String() != expectedBody {
-		t.Fatalf("body is not %q. got=%q", expectedBody, fn.Body.String())
+	if fn.BodyNode.String() != expectedBody {
+		t.Fatalf("body is not %q. got=%q", expectedBody, fn.BodyNode.String())
 	}
 }
 

@@ -37,7 +37,7 @@ func (p *Parser) parsePrefixExpression() ast.ExpressionNode {
 
 	p.nextToken()
 
-	expr.Right = p.parseExpression(PREFIX)
+	expr.RightNode = p.parseExpression(PREFIX)
 
 	return expr
 }
@@ -46,12 +46,12 @@ func (p *Parser) parseInfixExpression(leftNode ast.ExpressionNode) ast.Expressio
 	expr := &ast.InfixExpressionNode{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
-		Left:     leftNode,
+		LeftNode: leftNode,
 	}
 
 	precedence := p.curPrecedence()
 	p.nextToken()
-	expr.Right = p.parseExpression(precedence)
+	expr.RightNode = p.parseExpression(precedence)
 
 	return expr
 }
@@ -76,7 +76,7 @@ func (p *Parser) parseIfExpression() ast.ExpressionNode {
 	}
 
 	p.nextToken()
-	expr.Condition = p.parseExpression(LOWEST)
+	expr.ConditionNode = p.parseExpression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) {
 		return nil
@@ -86,7 +86,7 @@ func (p *Parser) parseIfExpression() ast.ExpressionNode {
 		return nil
 	}
 
-	expr.Consequence = p.parseBlockStatement()
+	expr.ConsequenceNode = p.parseBlockStatement()
 
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken()
@@ -95,7 +95,7 @@ func (p *Parser) parseIfExpression() ast.ExpressionNode {
 			return nil
 		}
 
-		expr.Alternative = p.parseBlockStatement()
+		expr.AlternativeNode = p.parseBlockStatement()
 	}
 
 	return expr
@@ -108,13 +108,13 @@ func (p *Parser) parseFunctionLiteral() ast.ExpressionNode {
 		return nil
 	}
 
-	lit.Parameters = p.parseFunctionParameters()
+	lit.ParamNodes = p.parseFunctionParameters()
 
 	if !p.expectPeek(token.LBRACE) {
 		return nil
 	}
 
-	lit.Body = p.parseBlockStatement()
+	lit.BodyNode = p.parseBlockStatement()
 
 	return lit
 }
@@ -147,8 +147,8 @@ func (p *Parser) parseFunctionParameters() []*ast.IdentifierNode {
 }
 
 func (p *Parser) parseCallExpression(fnNode ast.ExpressionNode) ast.ExpressionNode {
-	exp := &ast.CallExpressionNode{Token: p.curToken, Function: fnNode}
-	exp.Arguments = p.parseCallArguments()
+	exp := &ast.CallExpressionNode{Token: p.curToken, FnNode: fnNode}
+	exp.ArgNodes = p.parseCallArguments()
 	return exp
 }
 
