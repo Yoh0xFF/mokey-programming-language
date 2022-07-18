@@ -123,33 +123,33 @@ func TestReturnStatements(t *testing.T) {
 		{"if (10 > 1) { return 10; }", 10},
 		{
 			`
-if (10 > 1) {
-  if (10 > 1) {
-    return 10;
-  }
+			if (10 > 1) {
+				if (10 > 1) {
+					return 10;
+				}
 
-  return 1;
-}
-`,
+				return 1;
+			}
+			`,
 			10,
 		},
 		{
 			`
-let f = fn(x) {
-  return x;
-  x + 10;
-};
-f(10);`,
+			let f = fn(x) {
+				return x;
+				x + 10;
+			};
+			f(10);`,
 			10,
 		},
 		{
 			`
-let f = fn(x) {
-   let result = x + 10;
-   return result;
-   return 10;
-};
-f(10);`,
+			let f = fn(x) {
+				let result = x + 10;
+				return result;
+				return 10;
+			};
+			f(10);`,
 			20,
 		},
 	}
@@ -289,17 +289,17 @@ func TestFunctionApplication(t *testing.T) {
 
 func TestEnclosingEnvironments(t *testing.T) {
 	input := `
-let first = 10;
-let second = 10;
-let third = 10;
+		let first = 10;
+		let second = 10;
+		let third = 10;
 
-let ourFunction = fn(first) {
-  let second = 20;
+		let ourFunction = fn(first) {
+			let second = 20;
 
-  first + second + third;
-};
+			first + second + third;
+		};
 
-ourFunction(20) + first + second;`
+		ourFunction(20) + first + second;`
 
 	testIntegerObject(t, testEval(input), 70)
 }
