@@ -34,8 +34,8 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 		return newError("Unknown operator: -%s", right.Type())
 	}
 
-	value := right.(*object.Int).Value
-	return &object.Int{Value: -value}
+	value := right.(*object.IntObject).Value
+	return &object.IntObject{Value: -value}
 }
 
 func evalInfixExpression(operator string, left, right object.Object) object.Object {
@@ -56,18 +56,18 @@ func evalInfixExpression(operator string, left, right object.Object) object.Obje
 }
 
 func evalIntegerInfixExpression(operator string, left, right object.Object) object.Object {
-	leftValue := left.(*object.Int).Value
-	rightValue := right.(*object.Int).Value
+	leftValue := left.(*object.IntObject).Value
+	rightValue := right.(*object.IntObject).Value
 
 	switch operator {
 	case "+":
-		return &object.Int{Value: leftValue + rightValue}
+		return &object.IntObject{Value: leftValue + rightValue}
 	case "-":
-		return &object.Int{Value: leftValue - rightValue}
+		return &object.IntObject{Value: leftValue - rightValue}
 	case "*":
-		return &object.Int{Value: leftValue * rightValue}
+		return &object.IntObject{Value: leftValue * rightValue}
 	case "/":
-		return &object.Int{Value: leftValue / rightValue}
+		return &object.IntObject{Value: leftValue / rightValue}
 	case "<":
 		return nativeBoolToObject(leftValue < rightValue)
 	case ">":
@@ -127,7 +127,7 @@ func evalExpressions(exprs []ast.ExpressionNode, env *object.Environment) []obje
 }
 
 func applyFunction(fn object.Object, args []object.Object) object.Object {
-	fnCasted, ok := fn.(*object.Function)
+	fnCasted, ok := fn.(*object.FunctionObject)
 	if !ok {
 		return newError("Not a function: %s", fn.Type())
 	}
@@ -138,7 +138,7 @@ func applyFunction(fn object.Object, args []object.Object) object.Object {
 	return unwrapReturnValue(evaluated)
 }
 
-func extendFnEnv(fn *object.Function, args []object.Object) *object.Environment {
+func extendFnEnv(fn *object.FunctionObject, args []object.Object) *object.Environment {
 	env := object.NewEnclosedEnvironment(fn.Env)
 
 	for id, param := range fn.Parameters {
@@ -149,7 +149,7 @@ func extendFnEnv(fn *object.Function, args []object.Object) *object.Environment 
 }
 
 func unwrapReturnValue(obj object.Object) object.Object {
-	if returnValue, ok := obj.(*object.ReturnValue); ok {
+	if returnValue, ok := obj.(*object.ReturnValueObject); ok {
 		return returnValue.Value
 	}
 

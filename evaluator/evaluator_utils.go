@@ -5,7 +5,7 @@ import (
 	"monkey/object"
 )
 
-func nativeBoolToObject(input bool) *object.Bool {
+func nativeBoolToObject(input bool) *object.BoolObject {
 	if input {
 		return TRUE
 	}
@@ -26,8 +26,8 @@ func isTruthy(obj object.Object) bool {
 	}
 }
 
-func newError(format string, a ...interface{}) *object.Error {
-	return &object.Error{Message: fmt.Sprintf(format, a...)}
+func newError(format string, a ...interface{}) *object.ErrorObject {
+	return &object.ErrorObject{Message: fmt.Sprintf(format, a...)}
 }
 
 func isError(obj object.Object) bool {

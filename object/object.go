@@ -27,52 +27,52 @@ type Object interface {
 }
 
 /* Integer object */
-type Int struct {
+type IntObject struct {
 	Value int64
 }
 
-func (i *Int) Type() ObjectType { return INT_OBJ }
-func (i *Int) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
+func (i *IntObject) Type() ObjectType { return INT_OBJ }
+func (i *IntObject) Inspect() string  { return fmt.Sprintf("%d", i.Value) }
 
 /* Boolean object */
-type Bool struct {
+type BoolObject struct {
 	Value bool
 }
 
-func (b *Bool) Type() ObjectType { return BOOL_OBJ }
-func (b *Bool) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
+func (b *BoolObject) Type() ObjectType { return BOOL_OBJ }
+func (b *BoolObject) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
 
-/* Null obect */
-type Null struct{}
+/* NullObject obect */
+type NullObject struct{}
 
-func (n *Null) Type() ObjectType { return NULL_OBJ }
-func (n *Null) Inspect() string  { return "null" }
+func (n *NullObject) Type() ObjectType { return NULL_OBJ }
+func (n *NullObject) Inspect() string  { return "null" }
 
 /* Return value object */
-type ReturnValue struct {
+type ReturnValueObject struct {
 	Value Object
 }
 
-func (rv *ReturnValue) Type() ObjectType { return RETURN_VALUE_OBJ }
-func (rv *ReturnValue) Inspect() string  { return rv.Value.Inspect() }
+func (rv *ReturnValueObject) Type() ObjectType { return RETURN_VALUE_OBJ }
+func (rv *ReturnValueObject) Inspect() string  { return rv.Value.Inspect() }
 
-/* Error object */
-type Error struct {
+/* ErrorObject object */
+type ErrorObject struct {
 	Message string
 }
 
-func (e *Error) Type() ObjectType { return ERROR_OBJ }
-func (e *Error) Inspect() string  { return fmt.Sprintf("Error: %s", e.Message) }
+func (e *ErrorObject) Type() ObjectType { return ERROR_OBJ }
+func (e *ErrorObject) Inspect() string  { return fmt.Sprintf("Error: %s", e.Message) }
 
-/* Function object */
-type Function struct {
+/* FunctionObject object */
+type FunctionObject struct {
 	Parameters []*ast.Identifier
 	Body       *ast.BlockStatementNode
 	Env        *Environment
 }
 
-func (f *Function) Type() ObjectType { return FN_OBJ }
-func (f *Function) Inspect() string {
+func (f *FunctionObject) Type() ObjectType { return FN_OBJ }
+func (f *FunctionObject) Inspect() string {
 	var out bytes.Buffer
 
 	params := []string{}

@@ -6,9 +6,9 @@ import (
 )
 
 var (
-	NULL  = &object.Null{}
-	TRUE  = &object.Bool{Value: true}
-	FALSE = &object.Bool{Value: false}
+	NULL  = &object.NullObject{}
+	TRUE  = &object.BoolObject{Value: true}
+	FALSE = &object.BoolObject{Value: false}
 )
 
 func Eval(node ast.Node, env *object.Environment) object.Object {
@@ -28,7 +28,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		if isError(value) {
 			return value
 		}
-		return &object.ReturnValue{Value: value}
+		return &object.ReturnValueObject{Value: value}
 
 	case *ast.LetStatementNode:
 		value := Eval(node.Value, env)
@@ -39,7 +39,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 	// Expressions
 	case *ast.IntegerLiteral:
-		return &object.Int{Value: node.Value}
+		return &object.IntObject{Value: node.Value}
 
 	case *ast.Boolean:
 		return nativeBoolToObject(node.Value)
@@ -71,7 +71,7 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		return evalIdentifier(node, env)
 
 	case *ast.FunctionLiteral:
-		return &object.Function{
+		return &object.FunctionObject{
 			Parameters: node.Parameters,
 			Env:        env,
 			Body:       node.Body,

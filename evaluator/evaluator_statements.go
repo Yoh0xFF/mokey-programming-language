@@ -12,9 +12,9 @@ func evalProgram(progarm *ast.ProgramNode, env *object.Environment) object.Objec
 		result = Eval(statement, env)
 
 		switch result := result.(type) {
-		case *object.ReturnValue:
+		case *object.ReturnValueObject:
 			return result.Value
-		case *object.Error:
+		case *object.ErrorObject:
 			return result
 		}
 	}

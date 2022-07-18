@@ -214,7 +214,7 @@ func TestErrorHandling(t *testing.T) {
 	for _, tt := range tests {
 		evaluated := testEval(tt.input)
 
-		errObj, ok := evaluated.(*object.Error)
+		errObj, ok := evaluated.(*object.ErrorObject)
 		if !ok {
 			t.Errorf("no error object returned. got=%T(%+v)",
 				evaluated, evaluated)
@@ -248,7 +248,7 @@ func TestFunctionObject(t *testing.T) {
 	input := "fn(x) { x + 2; };"
 
 	evaluated := testEval(input)
-	fn, ok := evaluated.(*object.Function)
+	fn, ok := evaluated.(*object.FunctionObject)
 	if !ok {
 		t.Fatalf("object is not Function. got=%T (%+v)", evaluated, evaluated)
 	}
@@ -314,7 +314,7 @@ func testEval(input string) object.Object {
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
-	result, ok := obj.(*object.Int)
+	result, ok := obj.(*object.IntObject)
 	if !ok {
 		t.Errorf("object is not Integer. got=%T (%+v)", obj, obj)
 		return false
@@ -329,7 +329,7 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 }
 
 func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
-	result, ok := obj.(*object.Bool)
+	result, ok := obj.(*object.BoolObject)
 	if !ok {
 		t.Errorf("object is not Boolean. got=%T (%+v)", obj, obj)
 		return false
