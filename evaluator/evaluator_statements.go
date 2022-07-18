@@ -5,10 +5,10 @@ import (
 	"monkey/object"
 )
 
-func evalProgram(progarm *ast.ProgramNode, env *object.Environment) object.Object {
+func evalProgram(node *ast.ProgramNode, env *object.Environment) object.Object {
 	var result object.Object
 
-	for _, statement := range progarm.Statements {
+	for _, statement := range node.Statements {
 		result = Eval(statement, env)
 
 		switch result := result.(type) {
@@ -22,10 +22,10 @@ func evalProgram(progarm *ast.ProgramNode, env *object.Environment) object.Objec
 	return result
 }
 
-func evalBlockStatement(block *ast.BlockStatementNode, env *object.Environment) object.Object {
+func evalBlockStatement(node *ast.BlockStatementNode, env *object.Environment) object.Object {
 	var result object.Object
 
-	for _, statement := range block.Statements {
+	for _, statement := range node.Statements {
 		result = Eval(statement, env)
 
 		if result != nil && (result.Type() == object.RETURN_VALUE_OBJ || result.Type() == object.ERROR_OBJ) {

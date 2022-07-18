@@ -11,12 +11,12 @@ func TestString(t *testing.T) {
 			&LetStatementNode{
 				Token: token.Token{Type: token.LET, Literal: "let"},
 
-				Name: Identifier{
+				Name: IdentifierNode{
 					Token: token.Token{Type: token.IDENT, Literal: "myVar"},
 					Value: "myVar",
 				},
 
-				Value: &Identifier{
+				Value: &IdentifierNode{
 					Token: token.Token{Type: token.IDENT, Literal: "anotherVar"},
 					Value: "anotherVar",
 				},

@@ -38,20 +38,20 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		env.Set(node.Name.Value, value)
 
 	// Expressions
-	case *ast.IntegerLiteral:
+	case *ast.IntegerLiteralNode:
 		return &object.IntObject{Value: node.Value}
 
-	case *ast.Boolean:
+	case *ast.BooleanNode:
 		return nativeBoolToObject(node.Value)
 
-	case *ast.PrefixExpression:
+	case *ast.PrefixExpressionNode:
 		right := Eval(node.Right, env)
 		if isError(right) {
 			return right
 		}
 		return evalPrefixExpression(node.Operator, right)
 
-	case *ast.InfixExpression:
+	case *ast.InfixExpressionNode:
 		left := Eval(node.Left, env)
 		if isError(left) {
 			return left
@@ -64,20 +64,20 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 
 		return evalInfixExpression(node.Operator, left, right)
 
-	case *ast.IfExpression:
+	case *ast.IfExpressionNode:
 		return evalIfExpression(node, env)
 
-	case *ast.Identifier:
+	case *ast.IdentifierNode:
 		return evalIdentifier(node, env)
 
-	case *ast.FunctionLiteral:
+	case *ast.FunctionLiteralNode:
 		return &object.FunctionObject{
 			Parameters: node.Parameters,
 			Env:        env,
 			Body:       node.Body,
 		}
 
-	case *ast.CallExpression:
+	case *ast.CallExpressionNode:
 		fn := Eval(node.Function, env)
 		if isError(fn) {
 			return fn

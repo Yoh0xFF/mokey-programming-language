@@ -10,7 +10,7 @@ import (
 /* Let statement ast node */
 type LetStatementNode struct {
 	Token token.Token // the 'let' token
-	Name  Identifier
+	Name  IdentifierNode
 	Value ExpressionNode
 }
 

@@ -23,7 +23,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatementNode {
 		return nil
 	}
 
-	stmt.Name = ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	stmt.Name = ast.IdentifierNode{Token: p.curToken, Value: p.curToken.Literal}
 
 	if !p.expectPeek(token.ASSIGN) {
 		return nil

@@ -8,11 +8,11 @@ import (
 )
 
 func (p *Parser) parseIdentifier() ast.ExpressionNode {
-	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	return &ast.IdentifierNode{Token: p.curToken, Value: p.curToken.Literal}
 }
 
 func (p *Parser) parseIntegerLiteral() ast.ExpressionNode {
-	il := &ast.IntegerLiteral{Token: p.curToken}
+	il := &ast.IntegerLiteralNode{Token: p.curToken}
 
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
 	if err != nil {
@@ -26,11 +26,11 @@ func (p *Parser) parseIntegerLiteral() ast.ExpressionNode {
 }
 
 func (p *Parser) parseBoolean() ast.ExpressionNode {
-	return &ast.Boolean{Token: p.curToken, Value: p.curTokenIs(token.TRUE)}
+	return &ast.BooleanNode{Token: p.curToken, Value: p.curTokenIs(token.TRUE)}
 }
 
 func (p *Parser) parsePrefixExpression() ast.ExpressionNode {
-	expr := &ast.PrefixExpression{
+	expr := &ast.PrefixExpressionNode{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
 	}
@@ -42,11 +42,11 @@ func (p *Parser) parsePrefixExpression() ast.ExpressionNode {
 	return expr
 }
 
-func (p *Parser) parseInfixExpression(left ast.ExpressionNode) ast.ExpressionNode {
-	expr := &ast.InfixExpression{
+func (p *Parser) parseInfixExpression(leftNode ast.ExpressionNode) ast.ExpressionNode {
+	expr := &ast.InfixExpressionNode{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
-		Left:     left,
+		Left:     leftNode,
 	}
 
 	precedence := p.curPrecedence()
@@ -69,7 +69,7 @@ func (p *Parser) parseGroupedExpression() ast.ExpressionNode {
 }
 
 func (p *Parser) parseIfExpression() ast.ExpressionNode {
-	expr := &ast.IfExpression{Token: p.curToken}
+	expr := &ast.IfExpressionNode{Token: p.curToken}
 
 	if !p.expectPeek(token.LPAREN) {
 		return nil
@@ -102,7 +102,7 @@ func (p *Parser) parseIfExpression() ast.ExpressionNode {
 }
 
 func (p *Parser) parseFunctionLiteral() ast.ExpressionNode {
-	lit := &ast.FunctionLiteral{Token: p.curToken}
+	lit := &ast.FunctionLiteralNode{Token: p.curToken}
 
 	if !p.expectPeek(token.LPAREN) {
 		return nil
@@ -119,8 +119,8 @@ func (p *Parser) parseFunctionLiteral() ast.ExpressionNode {
 	return lit
 }
 
-func (p *Parser) parseFunctionParameters() []*ast.Identifier {
-	identifiers := []*ast.Identifier{}
+func (p *Parser) parseFunctionParameters() []*ast.IdentifierNode {
+	identifiers := []*ast.IdentifierNode{}
 
 	if p.peekTokenIs(token.RPAREN) {
 		p.nextToken()
@@ -129,13 +129,13 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 
 	p.nextToken()
 
-	ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	ident := &ast.IdentifierNode{Token: p.curToken, Value: p.curToken.Literal}
 	identifiers = append(identifiers, ident)
 
 	for p.peekTokenIs(token.COMMA) {
 		p.nextToken()
 		p.nextToken()
-		ident := &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+		ident := &ast.IdentifierNode{Token: p.curToken, Value: p.curToken.Literal}
 		identifiers = append(identifiers, ident)
 	}
 
@@ -146,8 +146,8 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 	return identifiers
 }
 
-func (p *Parser) parseCallExpression(function ast.ExpressionNode) ast.ExpressionNode {
-	exp := &ast.CallExpression{Token: p.curToken, Function: function}
+func (p *Parser) parseCallExpression(fnNode ast.ExpressionNode) ast.ExpressionNode {
+	exp := &ast.CallExpressionNode{Token: p.curToken, Function: fnNode}
 	exp.Arguments = p.parseCallArguments()
 	return exp
 }
