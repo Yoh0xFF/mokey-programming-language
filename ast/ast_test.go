@@ -6,9 +6,9 @@ import (
 )
 
 func TestString(t *testing.T) {
-	program := Program{
-		Statements: []Statement{
-			&LetStatement{
+	program := ProgramNode{
+		Statements: []StatementNode{
+			&LetStatementNode{
 				Token: token.Token{Type: token.LET, Literal: "let"},
 
 				Name: Identifier{

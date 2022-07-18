@@ -5,7 +5,7 @@ import (
 	"monkey/token"
 )
 
-func (p *Parser) parseExpression(precedence int) ast.Expression {
+func (p *Parser) parseExpression(precedence int) ast.ExpressionNode {
 	prefixParseFn := p.prefixParseFnMap[p.curToken.Type]
 	if prefixParseFn == nil {
 		p.noPrefixParserFnFound(p.curToken.Type)

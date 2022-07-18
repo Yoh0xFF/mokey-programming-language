@@ -67,7 +67,7 @@ func (e *Error) Inspect() string  { return fmt.Sprintf("Error: %s", e.Message) }
 /* Function object */
 type Function struct {
 	Parameters []*ast.Identifier
-	Body       *ast.BlockStatement
+	Body       *ast.BlockStatementNode
 	Env        *Environment
 }
 

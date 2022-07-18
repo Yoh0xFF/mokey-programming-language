@@ -5,7 +5,7 @@ import (
 	"monkey/token"
 )
 
-func (p *Parser) parseStatement() ast.Statement {
+func (p *Parser) parseStatement() ast.StatementNode {
 	switch p.curToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
@@ -16,8 +16,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	}
 }
 
-func (p *Parser) parseLetStatement() *ast.LetStatement {
-	stmt := &ast.LetStatement{Token: p.curToken}
+func (p *Parser) parseLetStatement() *ast.LetStatementNode {
+	stmt := &ast.LetStatementNode{Token: p.curToken}
 
 	if !p.expectPeek(token.IDENT) {
 		return nil
@@ -40,8 +40,8 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	return stmt
 }
 
-func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
-	stmt := &ast.ReturnStatement{Token: p.curToken}
+func (p *Parser) parseReturnStatement() *ast.ReturnStatementNode {
+	stmt := &ast.ReturnStatementNode{Token: p.curToken}
 
 	p.nextToken()
 
@@ -54,8 +54,8 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	return stmt
 }
 
-func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
-	stmt := &ast.ExpressionStatement{Token: p.curToken}
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatementNode {
+	stmt := &ast.ExpressionStatementNode{Token: p.curToken}
 
 	stmt.Expression = p.parseExpression(LOWEST)
 
@@ -66,9 +66,9 @@ func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	return stmt
 }
 
-func (p *Parser) parseBlockStatement() *ast.BlockStatement {
-	block := &ast.BlockStatement{Token: p.curToken}
-	block.Statements = []ast.Statement{}
+func (p *Parser) parseBlockStatement() *ast.BlockStatementNode {
+	block := &ast.BlockStatementNode{Token: p.curToken}
+	block.Statements = []ast.StatementNode{}
 
 	p.nextToken()
 

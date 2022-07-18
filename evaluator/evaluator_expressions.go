@@ -110,7 +110,7 @@ func evalIdentifier(i *ast.Identifier, env *object.Environment) object.Object {
 	return value
 }
 
-func evalExpressions(exprs []ast.Expression, env *object.Environment) []object.Object {
+func evalExpressions(exprs []ast.ExpressionNode, env *object.Environment) []object.Object {
 	var result []object.Object
 
 	for _, expr := range exprs {

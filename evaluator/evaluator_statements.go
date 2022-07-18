@@ -5,7 +5,7 @@ import (
 	"monkey/object"
 )
 
-func evalProgram(progarm *ast.Program, env *object.Environment) object.Object {
+func evalProgram(progarm *ast.ProgramNode, env *object.Environment) object.Object {
 	var result object.Object
 
 	for _, statement := range progarm.Statements {
@@ -22,7 +22,7 @@ func evalProgram(progarm *ast.Program, env *object.Environment) object.Object {
 	return result
 }
 
-func evalBlockStatement(block *ast.BlockStatement, env *object.Environment) object.Object {
+func evalBlockStatement(block *ast.BlockStatementNode, env *object.Environment) object.Object {
 	var result object.Object
 
 	for _, statement := range block.Statements {

@@ -3,11 +3,11 @@ package ast
 import "bytes"
 
 // Top level program node
-type Program struct {
-	Statements []Statement
+type ProgramNode struct {
+	Statements []StatementNode
 }
 
-func (p *Program) TokenLiteral() string {
+func (p *ProgramNode) TokenLiteral() string {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].TokenLiteral()
 	} else {
@@ -15,7 +15,7 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
-func (p *Program) String() string {
+func (p *ProgramNode) String() string {
 	var out bytes.Buffer
 
 	for _, s := range p.Statements {

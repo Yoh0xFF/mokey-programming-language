@@ -30,8 +30,8 @@ var precedenceMap = map[token.TokenType]int{
 }
 
 type (
-	prefixParseFn func() ast.Expression
-	infixParseFn  func(ast.Expression) ast.Expression
+	prefixParseFn func() ast.ExpressionNode
+	infixParseFn  func(ast.ExpressionNode) ast.ExpressionNode
 )
 
 type Parser struct {
@@ -80,9 +80,9 @@ func New(l *lexer.Lexer) *Parser {
 	return p
 }
 
-func (p *Parser) ParseProgram() *ast.Program {
-	program := &ast.Program{}
-	program.Statements = []ast.Statement{}
+func (p *Parser) ParseProgram() *ast.ProgramNode {
+	program := &ast.ProgramNode{}
+	program.Statements = []ast.StatementNode{}
 
 	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()

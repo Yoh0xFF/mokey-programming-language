@@ -14,23 +14,23 @@ var (
 func Eval(node ast.Node, env *object.Environment) object.Object {
 	switch node := node.(type) {
 	// Statements
-	case *ast.Program:
+	case *ast.ProgramNode:
 		return evalProgram(node, env)
 
-	case *ast.BlockStatement:
+	case *ast.BlockStatementNode:
 		return evalBlockStatement(node, env)
 
-	case *ast.ExpressionStatement:
+	case *ast.ExpressionStatementNode:
 		return Eval(node.Expression, env)
 
-	case *ast.ReturnStatement:
+	case *ast.ReturnStatementNode:
 		value := Eval(node.ReturnValue, env)
 		if isError(value) {
 			return value
 		}
 		return &object.ReturnValue{Value: value}
 
-	case *ast.LetStatement:
+	case *ast.LetStatementNode:
 		value := Eval(node.Value, env)
 		if isError(value) {
 			return value

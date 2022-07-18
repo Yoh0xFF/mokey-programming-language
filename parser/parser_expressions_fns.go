@@ -7,11 +7,11 @@ import (
 	"strconv"
 )
 
-func (p *Parser) parseIdentifier() ast.Expression {
+func (p *Parser) parseIdentifier() ast.ExpressionNode {
 	return &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
 }
 
-func (p *Parser) parseIntegerLiteral() ast.Expression {
+func (p *Parser) parseIntegerLiteral() ast.ExpressionNode {
 	il := &ast.IntegerLiteral{Token: p.curToken}
 
 	value, err := strconv.ParseInt(p.curToken.Literal, 0, 64)
@@ -25,11 +25,11 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	return il
 }
 
-func (p *Parser) parseBoolean() ast.Expression {
+func (p *Parser) parseBoolean() ast.ExpressionNode {
 	return &ast.Boolean{Token: p.curToken, Value: p.curTokenIs(token.TRUE)}
 }
 
-func (p *Parser) parsePrefixExpression() ast.Expression {
+func (p *Parser) parsePrefixExpression() ast.ExpressionNode {
 	expr := &ast.PrefixExpression{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
@@ -42,7 +42,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return expr
 }
 
-func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+func (p *Parser) parseInfixExpression(left ast.ExpressionNode) ast.ExpressionNode {
 	expr := &ast.InfixExpression{
 		Token:    p.curToken,
 		Operator: p.curToken.Literal,
@@ -56,7 +56,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	return expr
 }
 
-func (p *Parser) parseGroupedExpression() ast.Expression {
+func (p *Parser) parseGroupedExpression() ast.ExpressionNode {
 	p.nextToken()
 
 	expr := p.parseExpression(LOWEST)
@@ -68,7 +68,7 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	return expr
 }
 
-func (p *Parser) parseIfExpression() ast.Expression {
+func (p *Parser) parseIfExpression() ast.ExpressionNode {
 	expr := &ast.IfExpression{Token: p.curToken}
 
 	if !p.expectPeek(token.LPAREN) {
@@ -101,7 +101,7 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	return expr
 }
 
-func (p *Parser) parseFunctionLiteral() ast.Expression {
+func (p *Parser) parseFunctionLiteral() ast.ExpressionNode {
 	lit := &ast.FunctionLiteral{Token: p.curToken}
 
 	if !p.expectPeek(token.LPAREN) {
@@ -146,14 +146,14 @@ func (p *Parser) parseFunctionParameters() []*ast.Identifier {
 	return identifiers
 }
 
-func (p *Parser) parseCallExpression(function ast.Expression) ast.Expression {
+func (p *Parser) parseCallExpression(function ast.ExpressionNode) ast.ExpressionNode {
 	exp := &ast.CallExpression{Token: p.curToken, Function: function}
 	exp.Arguments = p.parseCallArguments()
 	return exp
 }
 
-func (p *Parser) parseCallArguments() []ast.Expression {
-	args := []ast.Expression{}
+func (p *Parser) parseCallArguments() []ast.ExpressionNode {
+	args := []ast.ExpressionNode{}
 
 	if p.peekTokenIs(token.RPAREN) {
 		p.nextToken()

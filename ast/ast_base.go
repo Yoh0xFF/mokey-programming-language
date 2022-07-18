@@ -7,13 +7,13 @@ type Node interface {
 }
 
 // All statement nodes implement this interface
-type Statement interface {
+type StatementNode interface {
 	Node
 	statementNode()
 }
 
 // All expression nodes implement this interface
-type Expression interface {
+type ExpressionNode interface {
 	Node
 	expressionNode()
 }

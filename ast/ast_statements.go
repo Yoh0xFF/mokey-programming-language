@@ -8,15 +8,15 @@ import (
 // Statements
 
 /* Let statement ast node */
-type LetStatement struct {
+type LetStatementNode struct {
 	Token token.Token // the 'let' token
 	Name  Identifier
-	Value Expression
+	Value ExpressionNode
 }
 
-func (ls *LetStatement) statementNode()       {}
-func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
-func (ls *LetStatement) String() string {
+func (ls *LetStatementNode) statementNode()       {}
+func (ls *LetStatementNode) TokenLiteral() string { return ls.Token.Literal }
+func (ls *LetStatementNode) String() string {
 	var out bytes.Buffer
 
 	out.WriteString(ls.TokenLiteral() + " ")
@@ -33,14 +33,14 @@ func (ls *LetStatement) String() string {
 }
 
 /* Return statement ast node */
-type ReturnStatement struct {
+type ReturnStatementNode struct {
 	Token       token.Token // the 'return' token
-	ReturnValue Expression
+	ReturnValue ExpressionNode
 }
 
-func (rs *ReturnStatement) statementNode()       {}
-func (rs *ReturnStatement) TokenLiteral() string { return rs.Token.Literal }
-func (rs *ReturnStatement) String() string {
+func (rs *ReturnStatementNode) statementNode()       {}
+func (rs *ReturnStatementNode) TokenLiteral() string { return rs.Token.Literal }
+func (rs *ReturnStatementNode) String() string {
 	var out bytes.Buffer
 
 	out.WriteString(rs.TokenLiteral() + " ")
@@ -55,14 +55,14 @@ func (rs *ReturnStatement) String() string {
 }
 
 /* Expession statement ast node */
-type ExpressionStatement struct {
+type ExpressionStatementNode struct {
 	Token      token.Token // the first token of the expression
-	Expression Expression
+	Expression ExpressionNode
 }
 
-func (es *ExpressionStatement) statementNode()       {}
-func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
-func (es *ExpressionStatement) String() string {
+func (es *ExpressionStatementNode) statementNode()       {}
+func (es *ExpressionStatementNode) TokenLiteral() string { return es.Token.Literal }
+func (es *ExpressionStatementNode) String() string {
 	if es.Expression != nil {
 		return es.Expression.String()
 	}
@@ -71,14 +71,14 @@ func (es *ExpressionStatement) String() string {
 }
 
 /* Block statement ast node */
-type BlockStatement struct {
+type BlockStatementNode struct {
 	Token      token.Token // the { token
-	Statements []Statement
+	Statements []StatementNode
 }
 
-func (bs *BlockStatement) statementNode()       {}
-func (bs *BlockStatement) TokenLiteral() string { return bs.Token.Literal }
-func (bs *BlockStatement) String() string {
+func (bs *BlockStatementNode) statementNode()       {}
+func (bs *BlockStatementNode) TokenLiteral() string { return bs.Token.Literal }
+func (bs *BlockStatementNode) String() string {
 	var out bytes.Buffer
 
 	for _, s := range bs.Statements {

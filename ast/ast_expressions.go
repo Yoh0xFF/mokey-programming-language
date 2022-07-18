@@ -42,7 +42,7 @@ func (il *IntegerLiteral) String() string       { return il.Token.Literal }
 type PrefixExpression struct {
 	Token    token.Token // The prefix token, e.g. !
 	Operator string
-	Right    Expression
+	Right    ExpressionNode
 }
 
 func (pe *PrefixExpression) expressionNode()      {}
@@ -61,9 +61,9 @@ func (pe *PrefixExpression) String() string {
 /* Infix expression ast node */
 type InfixExpression struct {
 	Token    token.Token // The operator token, e.g. +
-	Left     Expression
+	Left     ExpressionNode
 	Operator string
-	Right    Expression
+	Right    ExpressionNode
 }
 
 func (ie *InfixExpression) expressionNode()      {}
@@ -83,9 +83,9 @@ func (ie *InfixExpression) String() string {
 /* If expression ast node */
 type IfExpression struct {
 	Token       token.Token // The 'if' token
-	Condition   Expression
-	Consequence *BlockStatement
-	Alternative *BlockStatement
+	Condition   ExpressionNode
+	Consequence *BlockStatementNode
+	Alternative *BlockStatementNode
 }
 
 func (ie *IfExpression) expressionNode()      {}
@@ -110,7 +110,7 @@ func (ie *IfExpression) String() string {
 type FunctionLiteral struct {
 	Token      token.Token // The 'fn' token
 	Parameters []*Identifier
-	Body       *BlockStatement
+	Body       *BlockStatementNode
 }
 
 func (fl *FunctionLiteral) expressionNode()      {}
@@ -134,9 +134,9 @@ func (fl *FunctionLiteral) String() string {
 
 /* function call expression ast node */
 type CallExpression struct {
-	Token     token.Token // The '(' token
-	Function  Expression  // Identifier or FunctionLiteral
-	Arguments []Expression
+	Token     token.Token    // The '(' token
+	Function  ExpressionNode // Identifier or FunctionLiteral
+	Arguments []ExpressionNode
 }
 
 func (ce *CallExpression) expressionNode()      {}
