@@ -57,6 +57,8 @@ func (l *Lexer) NextToken() token.Token {
 		tk = newToken(token.GT, l.ch)
 	case ';':
 		tk = newToken(token.SEMICOLON, l.ch)
+	case ':':
+		tk = newToken(token.COLON, l.ch)
 	case ',':
 		tk = newToken(token.COMMA, l.ch)
 	case '{':
@@ -67,6 +69,12 @@ func (l *Lexer) NextToken() token.Token {
 		tk = newToken(token.LPAREN, l.ch)
 	case ')':
 		tk = newToken(token.RPAREN, l.ch)
+	case '[':
+		tk = newToken(token.LBRACKET, l.ch)
+	case ']':
+		tk = newToken(token.RBRACKET, l.ch)
+	case '"':
+		tk = newToken(token.STRING, l.readString())
 	case 0:
 		tk = newToken(token.EOF, "")
 	default:
@@ -129,6 +137,19 @@ func (l *Lexer) readNumber() string {
 
 	for isDigit(l.ch) {
 		l.readChar()
+	}
+
+	return l.input[position:l.position]
+}
+
+func (l *Lexer) readString() string {
+	position := l.position + 1
+
+	for {
+		l.readChar()
+		if l.ch == '"' || l.ch == 0 {
+			break
+		}
 	}
 
 	return l.input[position:l.position]
