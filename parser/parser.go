@@ -15,6 +15,7 @@ const (
 	PRODUCT      // *
 	PREFIX       // -x or !x
 	CALL         // myFn(x)
+	INDEX        // array[index]
 )
 
 var precedenceMap = map[token.TokenType]int{
@@ -27,6 +28,7 @@ var precedenceMap = map[token.TokenType]int{
 	token.SLASH:    PRODUCT,
 	token.ASTERISK: PRODUCT,
 	token.LPAREN:   CALL,
+	token.LBRACKET: INDEX,
 }
 
 type (
@@ -54,13 +56,16 @@ func New(l *lexer.Lexer) *Parser {
 	p.prefixParseFnMap = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefixParserFn(token.IDENT, p.parseIdentifier)
 	p.registerPrefixParserFn(token.INT, p.parseIntegerLiteral)
+	p.registerPrefixParserFn(token.STRING, p.parseStringLiteral)
 	p.registerPrefixParserFn(token.BANG, p.parsePrefixExpression)
 	p.registerPrefixParserFn(token.MINUS, p.parsePrefixExpression)
-	p.registerPrefixParserFn(token.TRUE, p.parseBoolean)
-	p.registerPrefixParserFn(token.FALSE, p.parseBoolean)
+	p.registerPrefixParserFn(token.TRUE, p.parseBooleanLiteral)
+	p.registerPrefixParserFn(token.FALSE, p.parseBooleanLiteral)
 	p.registerPrefixParserFn(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefixParserFn(token.IF, p.parseIfExpression)
 	p.registerPrefixParserFn(token.FUNCTION, p.parseFunctionLiteral)
+	p.registerPrefixParserFn(token.LBRACKET, p.parseArrayLiteral)
+	p.registerPrefixParserFn(token.LBRACE, p.parseHashLiteral)
 
 	p.infixParseFnMap = make(map[token.TokenType]infixParseFn)
 	p.registerInfixParserFn(token.PLUS, p.parseInfixExpression)
@@ -71,7 +76,9 @@ func New(l *lexer.Lexer) *Parser {
 	p.registerInfixParserFn(token.NOT_EQ, p.parseInfixExpression)
 	p.registerInfixParserFn(token.LT, p.parseInfixExpression)
 	p.registerInfixParserFn(token.GT, p.parseInfixExpression)
+
 	p.registerInfixParserFn(token.LPAREN, p.parseCallExpression)
+	p.registerInfixParserFn(token.LBRACKET, p.parseIndexExpression)
 
 	// Read two tokens, so curToken and peekToken are both set
 	p.nextToken()

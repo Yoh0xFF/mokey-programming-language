@@ -25,7 +25,11 @@ func (p *Parser) parseIntegerLiteral() ast.ExpressionNode {
 	return il
 }
 
-func (p *Parser) parseBoolean() ast.ExpressionNode {
+func (p *Parser) parseStringLiteral() ast.ExpressionNode {
+	return &ast.StringLiteralNode{Token: p.curToken, Value: p.curToken.Literal}
+}
+
+func (p *Parser) parseBooleanLiteral() ast.ExpressionNode {
 	return &ast.BooleanNode{Token: p.curToken, Value: p.curTokenIs(token.TRUE)}
 }
 
@@ -147,31 +151,83 @@ func (p *Parser) parseFunctionParameters() []*ast.IdentifierNode {
 }
 
 func (p *Parser) parseCallExpression(fnNode ast.ExpressionNode) ast.ExpressionNode {
-	exp := &ast.CallExpressionNode{Token: p.curToken, FnNode: fnNode}
-	exp.ArgNodes = p.parseCallArguments()
-	return exp
+	expr := &ast.CallExpressionNode{Token: p.curToken, FnNode: fnNode}
+
+	expr.ArgNodes = p.parseExpressionList(token.RPAREN)
+
+	return expr
 }
 
-func (p *Parser) parseCallArguments() []ast.ExpressionNode {
-	args := []ast.ExpressionNode{}
+func (p *Parser) parseExpressionList(end token.TokenType) []ast.ExpressionNode {
+	exprNodes := []ast.ExpressionNode{}
 
-	if p.peekTokenIs(token.RPAREN) {
+	if p.peekTokenIs(end) {
 		p.nextToken()
-		return args
+		return exprNodes
 	}
 
 	p.nextToken()
-	args = append(args, p.parseExpression(LOWEST))
+	exprNodes = append(exprNodes, p.parseExpression(LOWEST))
 
 	for p.peekTokenIs(token.COMMA) {
 		p.nextToken()
 		p.nextToken()
-		args = append(args, p.parseExpression(LOWEST))
+		exprNodes = append(exprNodes, p.parseExpression(LOWEST))
 	}
 
-	if !p.expectPeek(token.RPAREN) {
+	if !p.expectPeek(end) {
 		return nil
 	}
 
-	return args
+	return exprNodes
+}
+
+func (p *Parser) parseArrayLiteral() ast.ExpressionNode {
+	array := &ast.ArrayLiteralNode{Token: p.curToken}
+
+	array.Elements = p.parseExpressionList(token.RBRACKET)
+
+	return array
+}
+
+func (p *Parser) parseHashLiteral() ast.ExpressionNode {
+	hash := &ast.HashLiteralNode{Token: p.curToken}
+	hash.Pairs = make(map[ast.ExpressionNode]ast.ExpressionNode)
+
+	for !p.peekTokenIs(token.RBRACE) {
+		p.nextToken()
+		key := p.parseExpression(LOWEST)
+
+		if !p.expectPeek(token.COLON) {
+			return nil
+		}
+
+		p.nextToken()
+		value := p.parseExpression(LOWEST)
+
+		hash.Pairs[key] = value
+
+		if !p.peekTokenIs(token.RBRACE) && !p.expectPeek(token.COMMA) {
+			return nil
+		}
+	}
+
+	if !p.expectPeek(token.RBRACE) {
+		return nil
+	}
+
+	return hash
+}
+
+func (p *Parser) parseIndexExpression(left ast.ExpressionNode) ast.ExpressionNode {
+	expr := &ast.IndexExpressionNode{Token: p.curToken, Left: left}
+
+	p.nextToken()
+	expr.Index = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RBRACKET) {
+		return nil
+	}
+
+	return expr
 }
