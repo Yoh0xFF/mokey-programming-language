@@ -132,7 +132,7 @@ func (fl *FunctionLiteralNode) String() string {
 	return out.String()
 }
 
-/* function call expression ast node */
+/* Function call expression ast node */
 type CallExpressionNode struct {
 	Token    token.Token    // The '(' token
 	FnNode   ExpressionNode // Identifier or FunctionLiteral
@@ -153,6 +153,83 @@ func (ce *CallExpressionNode) String() string {
 	out.WriteString("(")
 	out.WriteString(strings.Join(args, ", "))
 	out.WriteString(")")
+
+	return out.String()
+}
+
+/* String literal expression ast node */
+type StringLiteralNode struct {
+	Token token.Token
+	Value string
+}
+
+func (sl *StringLiteralNode) expressionNode()      {}
+func (sl *StringLiteralNode) TokenLiteral() string { return sl.Token.Literal }
+func (sl *StringLiteralNode) String() string       { return sl.Value }
+
+/* Array literal expression ast node */
+type ArrayLiteralNode struct {
+	Token    token.Token // The '[' token
+	Elements []ExpressionNode
+}
+
+func (al *ArrayLiteralNode) expressionNode()      {}
+func (al *ArrayLiteralNode) TokenLiteral() string { return al.Token.Literal }
+func (al *ArrayLiteralNode) String() string {
+	var out bytes.Buffer
+
+	strElements := []string{}
+	for _, el := range al.Elements {
+		strElements = append(strElements, el.String())
+	}
+
+	out.WriteString("[")
+	out.WriteString(strings.Join(strElements, ", "))
+	out.WriteString("]")
+
+	return out.String()
+}
+
+/* Index expression ast node */
+type IndexExpressionNode struct {
+	Token token.Token // The '[' token
+	Left  ExpressionNode
+	Index ExpressionNode
+}
+
+func (ie *IndexExpressionNode) expressionNode()      {}
+func (ie *IndexExpressionNode) TokenLiteral() string { return ie.Token.Literal }
+func (ie *IndexExpressionNode) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ie.Left.String())
+	out.WriteString("[")
+	out.WriteString(ie.Index.String())
+	out.WriteString("])")
+
+	return out.String()
+}
+
+/* Hash literal ast node */
+type HashLiteralNode struct {
+	Token token.Token // The '{' token
+	Pairs map[ExpressionNode]ExpressionNode
+}
+
+func (hl *HashLiteralNode) expressionNode()      {}
+func (hl *HashLiteralNode) TokenLiteral() string { return hl.Token.Literal }
+func (hl *HashLiteralNode) String() string {
+	var out bytes.Buffer
+
+	strPairs := []string{}
+	for key, val := range hl.Pairs {
+		strPairs = append(strPairs, key.String()+" : "+val.String())
+	}
+
+	out.WriteString("{")
+	out.WriteString(strings.Join(strPairs, ", "))
+	out.WriteString("}")
 
 	return out.String()
 }
