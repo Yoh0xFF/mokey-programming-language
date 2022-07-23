@@ -34,7 +34,7 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		resultObject := evaluator.Eval(programNode, env)
-		if resultObject != nil {
+		if resultObject != nil && resultObject.Type() != object.NULL_OBJ {
 			io.WriteString(out, resultObject.Inspect())
 			io.WriteString(out, "\n")
 		}
