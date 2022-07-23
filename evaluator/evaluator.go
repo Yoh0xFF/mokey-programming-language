@@ -41,6 +41,9 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 	case *ast.IntegerLiteralNode:
 		return &object.IntObject{Value: node.Value}
 
+	case *ast.StringLiteralNode:
+		return &object.StringObject{Value: node.Value}
+
 	case *ast.BooleanNode:
 		return nativeBoolToObject(node.Value)
 
@@ -89,6 +92,31 @@ func Eval(node ast.Node, env *object.Environment) object.Object {
 		}
 
 		return applyFunction(fnObject, argObjects)
+
+	case *ast.ArrayLiteralNode:
+		elementObjects := evalExpressions(node.Elements, env)
+
+		if len(elementObjects) == 1 && isError(elementObjects[0]) {
+			return elementObjects[0]
+		}
+
+		return &object.ArrayObject{Elements: elementObjects}
+
+	case *ast.IndexExpressionNode:
+		leftObject := Eval(node.Left, env)
+		if isError(leftObject) {
+			return leftObject
+		}
+
+		indexObject := Eval(node.Index, env)
+		if isError(indexObject) {
+			return indexObject
+		}
+
+		return evalIndexExpression(leftObject, indexObject)
+
+	case *ast.HashLiteralNode:
+		return evalHashLiteral(node, env)
 	}
 
 	return nil
