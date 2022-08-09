@@ -9,7 +9,9 @@ import (
 
 type Compiler struct {
 	instructions code.Instructions
-	constants    []object.Object
+
+	constants   []object.Object
+	symbolTable *SymbolTable
 
 	lastInstruction     EmittedInstruction
 	previousInstruction EmittedInstruction
@@ -19,9 +21,17 @@ func New() *Compiler {
 	return &Compiler{
 		instructions:        code.Instructions{},
 		constants:           []object.Object{},
+		symbolTable:         NewSymbolTable(),
 		lastInstruction:     EmittedInstruction{},
 		previousInstruction: EmittedInstruction{},
 	}
+}
+
+func NewWithState(constants []object.Object, s *SymbolTable) *Compiler {
+	compiler := New()
+	compiler.constants = constants
+	compiler.symbolTable = s
+	return compiler
 }
 
 func (c *Compiler) Compile(node ast.Node) error {
@@ -158,6 +168,22 @@ func (c *Compiler) Compile(node ast.Node) error {
 				return err
 			}
 		}
+
+	case *ast.LetStatementNode:
+		err := c.Compile(node.ValueNode)
+		if err != nil {
+			return err
+		}
+		symbol := c.symbolTable.Define(node.NameNode.Value)
+		c.emit(code.OpSetGlobal, symbol.Index)
+
+	case *ast.IdentifierNode:
+		symbol, ok := c.symbolTable.Resolve(node.Value)
+		if !ok {
+			return fmt.Errorf("undefined variable %s", node.Value)
+		}
+		c.emit(code.OpGetGlobal, symbol.Index)
+
 	}
 
 	return nil
