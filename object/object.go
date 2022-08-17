@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"monkey/ast"
+	"monkey/code"
 	"strings"
 )
 
@@ -27,6 +28,8 @@ const (
 
 	ARRAY_OBJ = "ARRAY"
 	HASH_OBJ  = "HASH"
+
+	COMPILED_FN_OBJ = "COMPILED_FUNC_OBJ"
 )
 
 type HashKey struct {
@@ -191,4 +194,15 @@ func (h *HashObject) Inspect() string {
 	out.WriteString("}")
 
 	return out.String()
+}
+
+type CompiledFnObject struct {
+	Instructions  code.Instructions
+	NumLocals     int
+	NumParameters int
+}
+
+func (cf *CompiledFnObject) Type() ObjectType { return COMPILED_FN_OBJ }
+func (cf *CompiledFnObject) Inspect() string {
+	return fmt.Sprintf("CompiledFunction[%p]", cf)
 }

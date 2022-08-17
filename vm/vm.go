@@ -9,30 +9,39 @@ import (
 
 const StackSize = 2048
 const GlobalsSize = 65536
+const MaxFrames = 1024
 
 var True = &object.BoolObject{Value: true}
 var False = &object.BoolObject{Value: false}
 var Null = &object.NullObject{}
 
 type VM struct {
-	instructions code.Instructions
-
 	constants []object.Object
 	globals   []object.Object
 
 	stack []object.Object
 	sp    int // Always points to the next value. Top of the stack is stack[sp - 1]
+
+	frames      []*Frame
+	framesIndex int
 }
 
 func New(bytecode *compiler.Bytecode) *VM {
-	return &VM{
-		instructions: bytecode.Instructions,
+	mainFn := &object.CompiledFnObject{Instructions: bytecode.Instructions}
+	mainFrame := NewFrame(mainFn, 0)
 
+	frames := make([]*Frame, MaxFrames)
+	frames[0] = mainFrame
+
+	return &VM{
 		constants: bytecode.Constants,
 		globals:   make([]object.Object, GlobalsSize),
 
 		stack: make([]object.Object, StackSize),
 		sp:    0,
+
+		frames:      frames,
+		framesIndex: 1,
 	}
 }
 
@@ -44,134 +53,6 @@ func NewWithGlobalsStore(bytecode *compiler.Bytecode, globals []object.Object) *
 
 func (vm *VM) LastPoppedStackElem() object.Object {
 	return vm.stack[vm.sp]
-}
-
-func (vm *VM) Run() error {
-	for ip := 0; ip < len(vm.instructions); ip++ {
-		op := code.Opcode(vm.instructions[ip])
-
-		switch op {
-		case code.OpConstant:
-			constIndex := code.ReadUint16(vm.instructions[ip+1:])
-			ip += 2
-
-			err := vm.push(vm.constants[constIndex])
-			if err != nil {
-				return err
-			}
-
-		case code.OpPop:
-			vm.pop()
-
-		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv:
-			err := vm.executeBinaryOperation(op)
-			if err != nil {
-				return err
-			}
-
-		case code.OpTrue:
-			err := vm.push(True)
-			if err != nil {
-				return err
-			}
-
-		case code.OpFalse:
-			err := vm.push(False)
-			if err != nil {
-				return err
-			}
-
-		case code.OpEqual, code.OpNotEqual, code.OpGreaterThan:
-			err := vm.executeComparison(op)
-			if err != nil {
-				return err
-			}
-
-		case code.OpBang:
-			err := vm.executeBangOperator()
-			if err != nil {
-				return err
-			}
-
-		case code.OpMinus:
-			err := vm.executeMinusOperator()
-			if err != nil {
-				return err
-			}
-
-		case code.OpJump:
-			pos := int(code.ReadUint16(vm.instructions[ip+1:]))
-			ip = pos - 1
-
-		case code.OpJumpNotTruthy:
-			pos := int(code.ReadUint16(vm.instructions[ip+1:]))
-			ip += 2
-
-			condition := vm.pop()
-			if !isTruthy(condition) {
-				ip = pos - 1
-			}
-
-		case code.OpNull:
-			err := vm.push(Null)
-			if err != nil {
-				return err
-			}
-
-		case code.OpSetGlobal:
-			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
-			ip += 2
-
-			vm.globals[globalIndex] = vm.pop()
-
-		case code.OpGetGlobal:
-			globalIndex := code.ReadUint16(vm.instructions[ip+1:])
-			ip += 2
-
-			err := vm.push(vm.globals[globalIndex])
-			if err != nil {
-				return err
-			}
-
-		case code.OpArray:
-			numElements := int(code.ReadUint16(vm.instructions[ip+1:]))
-			ip += 2
-
-			array := vm.buildArray(vm.sp-numElements, vm.sp)
-			vm.sp = vm.sp - numElements
-
-			err := vm.push(array)
-			if err != nil {
-				return err
-			}
-
-		case code.OpHash:
-			numElements := int(code.ReadUint16(vm.instructions[ip+1:]))
-			ip += 2
-
-			hash, err := vm.buildHash(vm.sp-numElements, vm.sp)
-			if err != nil {
-				return err
-			}
-			vm.sp = vm.sp - numElements
-
-			err = vm.push(hash)
-			if err != nil {
-				return err
-			}
-
-		case code.OpIndex:
-			index := vm.pop()
-			left := vm.pop()
-
-			err := vm.executeIndexExpression(left, index)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }
 
 func (vm *VM) push(o object.Object) error {
@@ -379,6 +260,39 @@ func (vm *VM) executeHashIndex(hash, index object.Object) error {
 	}
 
 	return vm.push(pair.Value)
+}
+
+func (vm *VM) currentFrame() *Frame {
+	return vm.frames[vm.framesIndex-1]
+}
+
+func (vm *VM) pushFrame(f *Frame) {
+	vm.frames[vm.framesIndex] = f
+	vm.framesIndex++
+}
+
+func (vm *VM) popFrame() *Frame {
+	vm.framesIndex--
+	return vm.frames[vm.framesIndex]
+}
+
+func (vm *VM) callFunction(numArgs int) error {
+	fn, ok := vm.stack[vm.sp-1-numArgs].(*object.CompiledFnObject)
+	if !ok {
+		return fmt.Errorf("calling non-function")
+	}
+
+	if numArgs != fn.NumParameters {
+		return fmt.Errorf("wrong number of arguments: want=%d, got=%d",
+			fn.NumParameters, numArgs)
+	}
+
+	frame := NewFrame(fn, vm.sp-numArgs)
+	vm.pushFrame(frame)
+
+	vm.sp = frame.basePointer + fn.NumLocals
+
+	return nil
 }
 
 func nativeBoolToBooleanObject(input bool) *object.BoolObject {
