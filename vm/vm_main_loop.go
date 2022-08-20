@@ -1,6 +1,9 @@
 package vm
 
-import "monkey/code"
+import (
+	"monkey/code"
+	"monkey/object"
+)
 
 func (vm *VM) Run() error {
 	var ip int
@@ -137,7 +140,7 @@ func (vm *VM) Run() error {
 			numArgs := code.ReadUint8(inst[ip+1:])
 			vm.currentFrame().ip += 1
 
-			err := vm.callFunction(int(numArgs))
+			err := vm.executeCall(int(numArgs))
 			if err != nil {
 				return err
 			}
@@ -177,6 +180,17 @@ func (vm *VM) Run() error {
 			frame := vm.currentFrame()
 
 			err := vm.push(vm.stack[frame.basePointer+int(localIndex)])
+			if err != nil {
+				return err
+			}
+
+		case code.OpGetBuiltin:
+			builtinIndex := code.ReadUint8(inst[ip+1:])
+			vm.currentFrame().ip += 1
+
+			definition := object.Builtins[builtinIndex]
+
+			err := vm.push(definition.Builtin)
 			if err != nil {
 				return err
 			}

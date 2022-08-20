@@ -153,7 +153,10 @@ func applyFunction(fnObject object.Object, argObjects []object.Object) object.Ob
 		return unwrapReturnValue(resultObject)
 
 	case *object.BuiltinObject:
-		return fnObjectCasted.Fn(argObjects...)
+		if result := fnObjectCasted.Fn(argObjects...); result != nil {
+			return result
+		}
+		return NULL
 
 	default:
 		return newErrorObject("Not a function: %s", fnObject.Type())
