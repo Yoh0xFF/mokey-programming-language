@@ -33,6 +33,10 @@ func (p *Parser) parseLetStatement() *ast.LetStatementNode {
 
 	stmt.ValueNode = p.parseExpression(LOWEST)
 
+	if fl, ok := stmt.ValueNode.(*ast.FunctionLiteralNode); ok {
+		fl.Name = stmt.NameNode.Value
+	}
+
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}

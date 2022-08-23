@@ -144,11 +144,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 	case *ast.LetStatementNode:
+		symbol := c.symbolTable.Define(node.NameNode.Value)
+
 		err := c.Compile(node.ValueNode)
 		if err != nil {
 			return err
 		}
-		symbol := c.symbolTable.Define(node.NameNode.Value)
+
 		if symbol.Scope == GlobalScope {
 			c.emit(code.OpSetGlobal, symbol.Index)
 		} else {
@@ -215,6 +217,10 @@ func (c *Compiler) Compile(node ast.Node) error {
 	case *ast.FunctionLiteralNode:
 		c.enterScope()
 
+		if node.Name != "" {
+			c.symbolTable.DefineFunctionName(node.Name)
+		}
+
 		for _, p := range node.ParamNodes {
 			c.symbolTable.Define(p.Value)
 		}
@@ -231,15 +237,22 @@ func (c *Compiler) Compile(node ast.Node) error {
 			c.emit(code.OpReturn)
 		}
 
+		freeSymbols := c.symbolTable.FreeSymbols
 		numLocals := c.symbolTable.counter
 		instructions := c.leaveScope()
+
+		for _, s := range freeSymbols {
+			c.loadSymbol(s)
+		}
 
 		compiledFunc := &object.CompiledFnObject{
 			Instructions:  instructions,
 			NumLocals:     numLocals,
 			NumParameters: len(node.ParamNodes),
 		}
-		c.emit(code.OpConstant, c.addConstant(compiledFunc))
+
+		fnIndex := c.addConstant(compiledFunc)
+		c.emit(code.OpClosure, fnIndex, len(freeSymbols))
 
 	case *ast.ReturnStatementNode:
 		err := c.Compile(node.ReturnValueNode)
