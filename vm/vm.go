@@ -28,7 +28,8 @@ type VM struct {
 
 func New(bytecode *compiler.Bytecode) *VM {
 	mainFn := &object.CompiledFnObject{Instructions: bytecode.Instructions}
-	mainFrame := NewFrame(mainFn, 0)
+	mainClosure := &object.ClosureObject{Fn: mainFn}
+	mainFrame := NewFrame(mainClosure, 0)
 
 	frames := make([]*Frame, MaxFrames)
 	frames[0] = mainFrame
@@ -279,8 +280,8 @@ func (vm *VM) popFrame() *Frame {
 func (vm *VM) executeCall(numArgs int) error {
 	callee := vm.stack[vm.sp-1-numArgs]
 	switch callee := callee.(type) {
-	case *object.CompiledFnObject:
-		return vm.callFunction(callee, numArgs)
+	case *object.ClosureObject:
+		return vm.callClosure(callee, numArgs)
 	case *object.BuiltinObject:
 		return vm.callBuiltin(callee, numArgs)
 	default:
@@ -288,16 +289,16 @@ func (vm *VM) executeCall(numArgs int) error {
 	}
 }
 
-func (vm *VM) callFunction(fn *object.CompiledFnObject, numArgs int) error {
-	if numArgs != fn.NumParameters {
+func (vm *VM) callClosure(cl *object.ClosureObject, numArgs int) error {
+	if numArgs != cl.Fn.NumParameters {
 		return fmt.Errorf("wrong number of arguments: want=%d, got=%d",
-			fn.NumParameters, numArgs)
+			cl.Fn.NumParameters, numArgs)
 	}
 
-	frame := NewFrame(fn, vm.sp-numArgs)
+	frame := NewFrame(cl, vm.sp-numArgs)
 	vm.pushFrame(frame)
 
-	vm.sp = frame.basePointer + fn.NumLocals
+	vm.sp = frame.basePointer + cl.Fn.NumLocals
 
 	return nil
 }
@@ -315,6 +316,23 @@ func (vm *VM) callBuiltin(builtin *object.BuiltinObject, numArgs int) error {
 	}
 
 	return nil
+}
+
+func (vm *VM) pushClosure(constIndex, numFree int) error {
+	constant := vm.constants[constIndex]
+	fn, ok := constant.(*object.CompiledFnObject)
+	if !ok {
+		return fmt.Errorf("not a function: %+v", constant)
+	}
+
+	free := make([]object.Object, numFree)
+	for i := 0; i < numFree; i++ {
+		free[i] = vm.stack[vm.sp-numFree+i]
+	}
+	vm.sp = vm.sp - numFree
+
+	closure := &object.ClosureObject{Fn: fn, Free: free}
+	return vm.push(closure)
 }
 
 func nativeBoolToBooleanObject(input bool) *object.BoolObject {
