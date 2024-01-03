@@ -2,7 +2,7 @@ package ast
 
 import "bytes"
 
-// Top level program node
+// ProgramNode Top level program node
 type ProgramNode struct {
 	StatementNodes []StatementNode
 }

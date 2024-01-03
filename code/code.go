@@ -22,13 +22,13 @@ func (inst Instructions) String() string {
 	for i < len(inst) {
 		def, err := Lookup(inst[i])
 		if err != nil {
-			fmt.Fprintf(&out, "ERROR: %s\n", err)
+			_, _ = fmt.Fprintf(&out, "ERROR: %s\n", err)
 			continue
 		}
 
 		operands, read := ReadOperands(def, inst[i+1:])
 
-		fmt.Fprintf(&out, "%04d %s\n", i, inst.fmtInstruction(def, operands))
+		_, _ = fmt.Fprintf(&out, "%04d %s\n", i, inst.fmtInstruction(def, operands))
 
 		i += 1 + read
 	}

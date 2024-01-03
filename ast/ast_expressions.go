@@ -9,7 +9,7 @@ import (
 
 // Expressions
 
-/* IdentifierNode ast node */
+// IdentifierNode ast node
 type IdentifierNode struct {
 	Token token.Token // the token.IDENT token
 	Value string
@@ -19,7 +19,7 @@ func (i *IdentifierNode) expressionNode()      {}
 func (i *IdentifierNode) TokenLiteral() string { return i.Token.Literal }
 func (i *IdentifierNode) String() string       { return i.Value }
 
-/* Identifier boolean node */
+// BooleanNode boolean node
 type BooleanNode struct {
 	Token token.Token
 	Value bool
@@ -29,7 +29,7 @@ func (b *BooleanNode) expressionNode()      {}
 func (b *BooleanNode) TokenLiteral() string { return b.Token.Literal }
 func (b *BooleanNode) String() string       { return b.Token.Literal }
 
-/* Integer boolean node */
+// IntegerLiteralNode Integer literal node
 type IntegerLiteralNode struct {
 	Token token.Token
 	Value int64
@@ -39,7 +39,7 @@ func (il *IntegerLiteralNode) expressionNode()      {}
 func (il *IntegerLiteralNode) TokenLiteral() string { return il.Token.Literal }
 func (il *IntegerLiteralNode) String() string       { return il.Token.Literal }
 
-/* Predix expression ast node */
+// PrefixExpressionNode Predix expression ast node
 type PrefixExpressionNode struct {
 	Token     token.Token // The prefix token, e.g. !
 	Operator  string
@@ -59,7 +59,7 @@ func (pe *PrefixExpressionNode) String() string {
 	return out.String()
 }
 
-/* Infix expression ast node */
+// InfixExpressionNode Infix expression ast node
 type InfixExpressionNode struct {
 	Token     token.Token // The operator token, e.g. +
 	LeftNode  ExpressionNode
@@ -81,7 +81,7 @@ func (ie *InfixExpressionNode) String() string {
 	return out.String()
 }
 
-/* If expression ast node */
+// IfExpressionNode If expression ast node
 type IfExpressionNode struct {
 	Token           token.Token // The 'if' token
 	ConditionNode   ExpressionNode
@@ -107,7 +107,7 @@ func (ie *IfExpressionNode) String() string {
 	return out.String()
 }
 
-/* Function literal ast node */
+// FunctionLiteralNode Function literal ast node
 type FunctionLiteralNode struct {
 	Token      token.Token // The 'fn' token
 	ParamNodes []*IdentifierNode
@@ -137,7 +137,7 @@ func (fl *FunctionLiteralNode) String() string {
 	return out.String()
 }
 
-/* Function call expression ast node */
+// CallExpressionNode Function call expression ast node
 type CallExpressionNode struct {
 	Token    token.Token    // The '(' token
 	FnNode   ExpressionNode // Identifier or FunctionLiteral
@@ -162,7 +162,7 @@ func (ce *CallExpressionNode) String() string {
 	return out.String()
 }
 
-/* String literal expression ast node */
+// StringLiteralNode String literal expression ast node
 type StringLiteralNode struct {
 	Token token.Token
 	Value string
@@ -172,7 +172,7 @@ func (sl *StringLiteralNode) expressionNode()      {}
 func (sl *StringLiteralNode) TokenLiteral() string { return sl.Token.Literal }
 func (sl *StringLiteralNode) String() string       { return sl.Value }
 
-/* Array literal expression ast node */
+// ArrayLiteralNode Array literal expression ast node
 type ArrayLiteralNode struct {
 	Token    token.Token // The '[' token
 	Elements []ExpressionNode
@@ -195,7 +195,7 @@ func (al *ArrayLiteralNode) String() string {
 	return out.String()
 }
 
-/* Index expression ast node */
+// IndexExpressionNode Index expression ast node
 type IndexExpressionNode struct {
 	Token token.Token // The '[' token
 	Left  ExpressionNode
@@ -216,7 +216,7 @@ func (ie *IndexExpressionNode) String() string {
 	return out.String()
 }
 
-/* Hash literal ast node */
+// HashLiteralNode Hash literal ast node
 type HashLiteralNode struct {
 	Token token.Token // The '{' token
 	Pairs map[ExpressionNode]ExpressionNode

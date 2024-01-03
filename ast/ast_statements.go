@@ -7,7 +7,7 @@ import (
 
 // Statements
 
-/* Let statement ast node */
+// LetStatementNode Let statement ast node
 type LetStatementNode struct {
 	Token     token.Token // the 'let' token
 	NameNode  IdentifierNode
@@ -32,7 +32,7 @@ func (ls *LetStatementNode) String() string {
 	return out.String()
 }
 
-/* Return statement ast node */
+// ReturnStatementNode Return statement ast node
 type ReturnStatementNode struct {
 	Token           token.Token // the 'return' token
 	ReturnValueNode ExpressionNode
@@ -54,7 +54,7 @@ func (rs *ReturnStatementNode) String() string {
 	return out.String()
 }
 
-/* Expession statement ast node */
+// ExpressionStatementNode Expression statement ast node
 type ExpressionStatementNode struct {
 	Token          token.Token // the first token of the expression
 	ExpressionNode ExpressionNode
@@ -70,7 +70,7 @@ func (es *ExpressionStatementNode) String() string {
 	return ""
 }
 
-/* Block statement ast node */
+// BlockStatementNode Block statement ast node
 type BlockStatementNode struct {
 	Token          token.Token // the { token
 	StatementNodes []StatementNode

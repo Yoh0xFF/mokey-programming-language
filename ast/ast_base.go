@@ -1,18 +1,18 @@
 package ast
 
-// The base Node interface
+// Node The base interface
 type Node interface {
 	TokenLiteral() string
 	String() string
 }
 
-// All statement nodes implement this interface
+// StatementNode All statement nodes implement this interface
 type StatementNode interface {
 	Node
 	statementNode()
 }
 
-// All expression nodes implement this interface
+// ExpressionNode All expression nodes implement this interface
 type ExpressionNode interface {
 	Node
 	expressionNode()
