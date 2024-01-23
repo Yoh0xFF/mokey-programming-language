@@ -231,7 +231,7 @@ func (c *Compiler) Compile(node ast.Node) error {
 		}
 
 		if c.lastInstructionIs(code.OpPop) {
-			c.repaceLastPopWithReturn()
+			c.replaceLastPopWithReturn()
 		}
 		if !c.lastInstructionIs(code.OpReturnValue) {
 			c.emit(code.OpReturn)

@@ -108,9 +108,9 @@ func (c *Compiler) addConstant(obj object.Object) int {
 
 func (c *Compiler) addInstruction(inst []byte) int {
 	newPos := len(c.currentInstructions())
-	updatedInstuctions := append(c.currentInstructions(), inst...)
+	updatedInstructions := append(c.currentInstructions(), inst...)
 
-	c.scopes[c.scopeIndex].instructions = updatedInstuctions
+	c.scopes[c.scopeIndex].instructions = updatedInstructions
 
 	return newPos
 }
@@ -142,7 +142,7 @@ func (c *Compiler) removeLastPop() {
 	c.scopes[c.scopeIndex].lastInstruction = previous
 }
 
-func (c *Compiler) repaceLastPopWithReturn() {
+func (c *Compiler) replaceLastPopWithReturn() {
 	lastPos := c.scopes[c.scopeIndex].lastInstruction.Position
 	c.replaceInstruction(lastPos, code.Make(code.OpReturnValue))
 
