@@ -238,9 +238,9 @@ func (vm *VM) executeIndexExpression(left, index object.Object) error {
 func (vm *VM) executeArrayIndex(array, index object.Object) error {
 	arrayObject := array.(*object.ArrayObject)
 	i := index.(*object.IntObject).Value
-	max := int64(len(arrayObject.Elements) - 1)
+	maxIndex := int64(len(arrayObject.Elements) - 1)
 
-	if i < 0 || i > max {
+	if i < 0 || i > maxIndex {
 		return vm.push(Null)
 	}
 
@@ -309,10 +309,15 @@ func (vm *VM) callBuiltin(builtin *object.BuiltinObject, numArgs int) error {
 	result := builtin.Fn(args...)
 	vm.sp = vm.sp - numArgs - 1
 
+	var err error = nil
 	if result != nil {
-		vm.push(result)
+		err = vm.push(result)
 	} else {
-		vm.push(Null)
+		err = vm.push(Null)
+	}
+
+	if err != nil {
+		panic("stack overflow")
 	}
 
 	return nil
